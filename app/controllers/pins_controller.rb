@@ -11,6 +11,12 @@ class PinsController < ApplicationController
     end
   end
 
+  def current_user=(user)
+    @current_user = user
+  end
+
+
+
   # GET /pins/1
   # GET /pins/1.json
   def show
