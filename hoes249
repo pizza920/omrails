@@ -1,0 +1,160 @@
+[33mcommit e5c9bdee4cc7f38bebda40ea462797561103fb22[m
+Author: dave <davidpollak4@gmail.com>
+Date:   Thu Aug 15 11:28:32 2013 -0400
+
+    index making single arguments about name field
+
+[1mdiff --git a/db/migrate/20130630213547_devise_create_users.rb b/db/migrate/20130630213547_devise_create_users.rb[m
+[1mindex f24bdc5..ae08beb 100644[m
+[1m--- a/db/migrate/20130630213547_devise_create_users.rb[m
+[1m+++ b/db/migrate/20130630213547_devise_create_users.rb[m
+[36m@@ -37,7 +37,8 @@[m [mclass DeviseCreateUsers < ActiveRecord::Migration[m
+       t.timestamps[m
+     end[m
+ [m
+[31m-    add_index :users, :name, :email,                :unique => true[m
+[32m+[m[32m    add_index :users, :email, :unique => true[m
+[32m+[m[32m    add_index :users, :name, :unique=>true[m
+     add_index :users, :reset_password_token, :unique => true[m
+     # add_index :users, :confirmation_token,   :unique => true[m
+     # add_index :users, :unlock_token,         :unique => true[m
+
+[33mcommit c2ee022b1ad1a8932f6038b4860a0e37704902f6[m
+Author: dave <davidpollak4@gmail.com>
+Date:   Thu Aug 15 10:43:28 2013 -0400
+
+    image validate
+
+[1mdiff --git a/app/models/pin.rb b/app/models/pin.rb[m
+[1mindex dddf112..d6fd4be 100644[m
+[1m--- a/app/models/pin.rb[m
+[1m+++ b/app/models/pin.rb[m
+[36m@@ -4,13 +4,14 @@[m [mclass Pin < ActiveRecord::Base[m
+ [m
+   validates :description, presence: true[m
+   #validates :name, presence: true[m
+[32m+[m[32m  has_attached_file :image, styles: { medium: "320x240>"}[m
+   validates_attachment :image, presence: true,[m
+                         			 content_type: { content_type: ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'] },[m
+                         			 size: { less_than: 5.megabytes }[m
+   [m
+ [m
+   belongs_to :user[m
+[31m-  has_attached_file :image, styles: { medium: "320x240>"}[m
+[32m+[m[41m  [m
+ end[m
+ [m
+ [m
+
+[33mcommit caf7a750ab4cab410a4c790eb217faebdd3d91fa[m
+Author: dave <davidpollak4@gmail.com>
+Date:   Wed Aug 14 15:22:08 2013 -0400
+
+    bug fix local host wrong end
+
+[1mdiff --git a/Gemfile b/Gemfile[m
+[1mindex 9152b8d..528ae99 100644[m
+[1m--- a/Gemfile[m
+[1m+++ b/Gemfile[m
+[36m@@ -5,6 +5,7 @@[m [mgem 'jquery-rails'[m
+ gem 'devise'[m
+ gem 'simple_form'[m
+ gem "paperclip", "~> 3.0"[m
+[32m+[m[32mgem 'aws-sdk'[m
+ [m
+ group :production do[m
+ 	gem 'pg'[m
+[1mdiff --git a/Gemfile.lock b/Gemfile.lock[m
+[1mindex 04c54ff..eeb7556 100644[m
+[1m--- a/Gemfile.lock[m
+[1m+++ b/Gemfile.lock[m
+[36m@@ -29,6 +29,10 @@[m [mGEM[m
+       i18n (= 0.6.1)[m
+       multi_json (~> 1.0)[m
+     arel (3.0.2)[m
+[32m+[m[32m    aws-sdk (1.14.1)[m
+[32m+[m[32m      json (~> 1.4)[m
+[32m+[m[32m      nokogiri (< 1.6.0)[m
+[32m+[m[32m      uuidtools (~> 2.1)[m
+     bcrypt-ruby (3.0.1)[m
+     bcrypt-ruby (3.0.1-x86-mingw32)[m
+     bootstrap-sass (2.3.2.0)[m
+[36m@@ -65,6 +69,7 @@[m [mGEM[m
+       treetop (~> 1.4.8)[m
+     mime-types (1.23)[m
+     multi_json (1.7.7)[m
+[32m+[m[32m    nokogiri (1.5.10-x86-mingw32)[m
+     orm_adapter (0.4.0)[m
+     paperclip (3.4.2)[m
+       activemodel (>= 3.0.0)[m
+[36m@@ -124,6 +129,7 @@[m [mGEM[m
+     uglifier (2.1.1)[m
+       execjs (>= 0.3.0)[m
+       multi_json (~> 1.0, >= 1.0.2)[m
+[32m+[m[32m    uuidtools (2.1.4)[m
+     warden (1.2.1)[m
+       rack (>= 1.0)[m
+ [m
+[36m@@ -131,6 +137,7 @@[m [mPLATFORMS[m
+   x86-mingw32[m
+ [m
+ DEPENDENCIES[m
+[32m+[m[32m  aws-sdk[m
+   bootstrap-sass (~> 2.3.2.0)[m
+   coffee-rails (~> 3.2.1)[m
+   devise[m
+[1mdiff --git a/app/assets/javascripts/application.js b/app/assets/javascripts/application.js[m
+[1mindex 4e97bff..972040e 100644[m
+[1m--- a/app/assets/javascripts/application.js[m
+[1m+++ b/app/assets/javascripts/application.js[m
+[36m@@ -14,4 +14,4 @@[m
+ //= require jquery_ujs[m
+ //= require jquery.masonry.min.js[m
+ //= require bootstrap[m
+[31m-//= require_tree .[m
+[32m+[m[32mrequire_tree .[m
+[1mdiff --git a/app/models/pin.rb b/app/models/pin.rb[m
+[1mindex 0b57dc6..dddf112 100644[m
+[1m--- a/app/models/pin.rb[m
+[1m+++ b/app/models/pin.rb[m
+[36m@@ -1,12 +1,13 @@[m
+ class Pin < ActiveRecord::Base[m
+[31m-  attr_accessible :description, :image[m
+[32m+[m[32m  attr_accessible :name, :description, :image[m
+   [m
+ [m
+   validates :description, presence: true[m
+[31m-  validates :name, presence: true[m
+[32m+[m[32m  #validates :name, presence: true[m
+   validates_attachment :image, presence: true,[m
+                         			 content_type: { content_type: ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'] },[m
+                         			 size: { less_than: 5.megabytes }[m
+[32m+[m[41m  [m
+ [m
+   belongs_to :user[m
+   has_attached_file :image, styles: { medium: "320x240>"}[m
+[1mdiff --git a/app/views/pins/_pin.html.erb b/app/views/pins/_pin.html.erb[m
+[1mindex fa813c2..4fdc67c 100644[m
+[1m--- a/app/views/pins/_pin.html.erb[m
+[1m+++ b/app/views/pins/_pin.html.erb[m
+[36m@@ -12,6 +12,6 @@[m
+         <p>[m
+           <%= link_to 'Edit', edit_pin_path(pin) %>[m
+           <%= link_to 'Destroy', pin, method: :delete, data: { confirm: 'Are you sure?' } %>[m
+[31m-        </p>[m
+[32m+[m[32m    </p>[m[41m[m
+     <% end %>[m
+ </div>[m
+\ No newline at end of file[m
+[1mdiff --git a/config/environments/production.rb b/config/environments/production.rb[m
+[1mindex 7d474f5..27809ec 100644[m
+[1m--- a/config/environments/production.rb[m
+[1m+++ b/config/environments/production.rb[m
+[36m@@ -65,5 +65,5 @@[m [mOmrails::Application.configure do[m
+   # with SQLite, MySQL, and PostgreSQL)[m
+   # config.active_record.auto_explain_threshold_in_seconds = 0.5[m
+   #In production host should be set to domain name[m
+[31m-  config.action_mailer.default_url_options = { :host => 'localhost:3000' }d[m
+[32m+[m[32m  config.action_mailer.default_url_options = { :host => 'localhost:3000' }[m[41m [m
+ end[m
+[1mdiff --git a/db/migrate/201306
